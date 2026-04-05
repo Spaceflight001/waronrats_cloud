@@ -12,6 +12,9 @@ var lastinair: bool = false
 @export var true_velocity: Vector3
 @export var gun: Node
 
+var currtoolname: String = ""
+var currtoolindex: int = 0
+
 var speed: float = 3.0
 const jump_vel: float = 8.5
 var accel: float = 30.0
@@ -36,6 +39,8 @@ func fire():
 	camrot.x += deg_to_rad(0.2)
 
 func _input(event: InputEvent) -> void:
+	
+	#move camera logic
 	if event is InputEventMouseMotion:
 		camrot.y -= event.relative.x / 500 * sensitivity
 		camrot.x -= event.relative.y / 500 * sensitivity
@@ -48,17 +53,81 @@ func _input(event: InputEvent) -> void:
 		aimtime = 0.0
 		speed = 6
 	
+	#nade logic (will be changed)
+	#if Input.is_action_pressed("melee"):
+	
 	#equip logic
-	if Input.is_key_pressed(KEY_1):
+	#if Input.is_action_pressed("equip_1"):
+		#if has_node("GunNode"):
+			#$GunNode.reparent($Backpack, false)
+			#$Backpack.move_child($Backpack/GunNode, 0)
+			#$".."/Buttons.currenttool = null
+		#else:
+			#$Backpack.find_child("GunNode").reparent(self, false)
+			#$GunNode.position.y = 0.5
+			#aimpos = -Vector3($GunNode/Gun/AimPositon.position.x,$GunNode/Gun/AimPositon.position.z,$GunNode/Gun/AimPositon.position.y)
+			#$".."/Buttons.currenttool = $GunNode
+	
+	if Input.is_action_pressed("equip_1"):
 		if has_node("GunNode"):
-			$GunNode.reparent($Backpack, false)
-			$".."/Buttons.currenttool = null
+			if currtoolindex == 0:
+				var stool = $GunNode
+				stool.reparent($Backpack, false)
+				$Backpack.move_child(stool, currtoolindex)
+				stool.name = currtoolname
+				$".."/Buttons.currenttool = null
+			else:
+				var stool = $GunNode
+				stool.reparent($Backpack, false)
+				$Backpack.move_child(stool, currtoolindex)
+				stool.name = currtoolname
+				
+				var tool = $Backpack.get_child(0)
+				tool.reparent(self, false)
+				currtoolname = tool.name
+				tool.name = "GunNode"
+				currtoolindex = 0
+				$".."/Buttons.currenttool = tool
+				tool.position.y = 0.5
 		else:
-			velocity = Vector3.ZERO
-			$Backpack.find_child("GunNode").reparent(self, false)
-			$GunNode.position.y = 0.5
-			aimpos = -Vector3($GunNode/Gun/AimPositon.position.x,$GunNode/Gun/AimPositon.position.z,$GunNode/Gun/AimPositon.position.y)
-			$".."/Buttons.currenttool = $GunNode
+			var tool = $Backpack.get_child(0)
+			tool.reparent(self, false)
+			currtoolname = tool.name
+			tool.name = "GunNode"
+			currtoolindex = 0
+			$".."/Buttons.currenttool = tool
+			tool.position.y = 0.5
+	
+	if Input.is_action_pressed("equip_2"):
+		if has_node("GunNode"):
+			if currtoolindex == 1:
+				var stool = $GunNode
+				stool.reparent($Backpack, false)
+				$Backpack.move_child(stool, currtoolindex)
+				stool.name = currtoolname
+				$".."/Buttons.currenttool = null
+			else:
+				var stool = $GunNode
+				stool.reparent($Backpack, false)
+				$Backpack.move_child(stool, currtoolindex)
+				stool.name = currtoolname
+				
+				var tool = $Backpack.get_child(1)
+				tool.reparent(self, false)
+				currtoolname = tool.name
+				tool.name = "GunNode"
+				currtoolindex = 1
+				$".."/Buttons.currenttool = tool
+				tool.position.y = 0.5
+		else:
+			var tool = $Backpack.get_child(1)
+			tool.reparent(self, false)
+			currtoolname = tool.name
+			tool.name = "GunNode"
+			currtoolindex = 1
+			$".."/Buttons.currenttool = tool
+			tool.position.y = 0.5
+
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -130,7 +199,7 @@ func _physics_process(delta: float) -> void:
 		velocity.z -= velocity.z * (delta * accel)
 	
 	var freq: float = 1.5
-	if has_node("GunNode"):
+	if has_node("GunNode") and $GunNode.has_node("Gun"):
 		freq = $GunNode.recoil_frequency
 	
 	#camera recoil spring logic

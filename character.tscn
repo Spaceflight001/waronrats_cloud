@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bcl31lg18cp5p" path="res://character.gd" id="1_glpr6"]
 [ext_resource type="PackedScene" uid="uid://cyr31rt5f5c0j" path="res://gun_node.tscn" id="2_pjt0s"]
+[ext_resource type="PackedScene" uid="uid://d3rwnetrqdevd" path="res://throw_node.tscn" id="3_wa5vi"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vu45j"]
 
@@ -24,3 +25,5 @@ mesh = SubResource("CapsuleMesh_vu45j")
 visible = false
 
 [node name="GunNode" parent="Backpack" unique_id=1868586264 instance=ExtResource("2_pjt0s")]
+
+[node name="ThrowNode" parent="Backpack" unique_id=1301492122 instance=ExtResource("3_wa5vi")]

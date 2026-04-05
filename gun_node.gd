@@ -8,6 +8,7 @@ extends Node3D
 
 @export var damage: float
 @export var firerate: float
+@export var fullauto: bool
 @export var accuracy: float
 @export var pellets: int
 @export var velocity: float
@@ -37,15 +38,16 @@ var charvely:float = 0.0
 
 var fired: int = 0.0
 var lastfire:float = 0.0
+var firing:bool = false
 var reset:bool = false
 
 #vertical gun recoil spring
 var recoilpos:float = 0.0
-var recoilvel:float  = 0.0
+@export var recoilvel:float  = 0.0
 
 #horizontal gun recoil spring
 var recoilposh:float = 0.0
-var recoilvelh:float = 0.0
+@export var recoilvelh:float = 0.0
 
 #camera recoil spring
 var crecoilpos:float = 0.0
@@ -61,6 +63,13 @@ func _input(event: InputEvent) -> void:
 	#reload logic
 	if event.is_action_pressed("reload"):
 		ammo = capacity
+	
+	if event.is_action_pressed("fire"):
+		firing = true
+	
+	if event.is_action_released("fire"):
+		firing = false
+		reset = false
 
 func fire():
 	lastfire = 0.0
@@ -100,6 +109,9 @@ func fire():
 		bullet.set_physics_process(true)
 	fired += 1
 	
+	if fullauto == false:
+		reset = true
+	
 	var recoilinc = -recoilpos * 0.4
 	$Gun/FlashLight.light_energy = 2
 	print(noise.get_noise_1d(fired))
@@ -138,8 +150,8 @@ func _process(delta: float) -> void:
 	
 	if get_parent().name != "Backpack":
 		#handle shooting
-		if Input.is_action_pressed("fire") and lastfire > (60.0 / firerate):
-			if ammo > 0:
+		if firing == true and lastfire > (60.0 / firerate):
+			if ammo > 0 and reset == false:
 				fire()
 		
 		$Gun/SubViewport/Camera3D.global_position = $Gun/AimPositon.global_position
@@ -150,8 +162,8 @@ func _process(delta: float) -> void:
 		
 		$Gun.rotation.y = 0.3 * sprintoff
 		if camrotation != Vector3.ZERO:
-			camdiff = (get_parent().find_child("Camera3D").rotation - camrotation)
-		camrotation = get_parent().find_child("Camera3D").rotation
+			camdiff = (get_parent().get_node("Camera3D").rotation - camrotation)
+		camrotation = get_parent().get_node("Camera3D").rotation
 		recoilvel -= camdiff.x * 1.5
 		recoilvelh -= camdiff.y * 1.5
 		rotation = camrotation + Vector3(gunoff.x * walksway - charvely + recoilpos - 0.3 * sprintoff, gunoff.y * sway + recoilposh,0)

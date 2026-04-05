@@ -1,3 +1,14 @@
 [gd_scene format=3 uid="uid://d3rwnetrqdevd"]
 
+[ext_resource type="Script" uid="uid://dgra326p7dnmx" path="res://throw_node.gd" id="1_yjf1v"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_luwgx"]
+radius = 0.1
+height = 0.2
+
 [node name="ThrowNode" type="Node3D" unique_id=1301492122]
+script = ExtResource("1_yjf1v")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1041789275]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, -0.4)
+mesh = SubResource("SphereMesh_luwgx")

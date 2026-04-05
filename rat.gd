@@ -1,11 +1,16 @@
 extends RigidBody3D
 
+#states
+enum States { IDLE, WAIT, MOVE }
+var state:States = States.IDLE
+
 @export var health: float = 0.0
 
 var lastjump: float = 5.0
 var lastdamage: float = 0.0
 @onready var collray:RayCast3D = $CollisionRay
 @onready var main:Node = get_tree().root.get_child(0)
+@onready var nav_agent:NavigationAgent3D = $NavigationAgent
 
 var isonfloor: bool = true
 
@@ -17,6 +22,10 @@ var floornormal: Vector3 = Vector3.ZERO
 func _ready() -> void:
 	pass # Replace with function body.
 
+#calls when idle
+func _on_idle():
+	pass
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta: float) -> void:
@@ -24,20 +33,6 @@ func _physics_process(delta: float) -> void:
 	lastdamage += delta
 	
 	var playerpos = get_tree().root.get_child(0).find_child("Character").position
-	#var velocity = linear_velocity
-	#velocity = (playerpos - position).normalized() / 20
-	#velocity = -global_basis.z / 18
-	#if isonfloor == true:
-		#velocity = -global_basis.z * 6
-	#velocity += get_gravity() * delta * 1.3
-	
-	#handle gravity
-	
-	#if collray.is_colliding() == false:
-		#linear_velocity.y += -9.8 * 3 * delta
-	#elif collray.get_collision_normal() > 0:
-		#linear_velocity.y += -9.8 * collray.get_collision_normal().y * 3 * delta
-	#print(collray.get_collision_normal().y)
 	
 	if collray.is_colliding():
 		linear_velocity.y += -9.8 * delta
@@ -52,8 +47,11 @@ func _physics_process(delta: float) -> void:
 			linear_velocity.y += 10
 	
 	var look: Vector3
-	#for part in get_colliding_bodies():
-		#print(c)
+	
+	#state machine
+	match state:
+		States.IDLE:
+			_on_idle()
 	
 	linear_velocity += -global_basis.z * 10 * delta
 	#linear_velocity = velocity
@@ -65,12 +63,15 @@ func _physics_process(delta: float) -> void:
 	
 	#health logic
 	if health <= 0.0:
-		main.feed.emit("KILLED RAT [100]", killcolor)
+		main.feed.emit("KILLED RAT", killcolor, 100)
 		main.get_node("Killmarker").play()
 		queue_free()
 	
 	#face player
-	look_at(playerpos, Vector3.UP)
+	#look_at(playerpos, Vector3.UP)
+	
+	var lookat = global_transform.looking_at(playerpos, Vector3.UP)
+	global_transform = global_transform.interpolate_with(lookat, 5 * delta)
 	rotation.x = 0
 	rotation.z = 0
 	
@@ -82,7 +83,9 @@ func _physics_process(delta: float) -> void:
 			collider.health = move_toward(collider.health, 0, 5)
 			var mult: float = collider.health / 100
 			main.get_node("Buttons/Sideblack").modulate.a = 1
-			main.get_node("Character").camvel += Vector3(mult * 2 * (randf() - randf()),mult * 2 *  (randf() - randf()),0)
+			main.get_node("Character").camvel += Vector3(mult * (randf() - randf()),mult * (randf() - randf()),0)
+			#main.get_node("Character/GunNode").recoilvel += randf() - randf()
+			#main.get_node("Character/GunNode").recoilvelh += randf() - randf()
 	
 	if collray.is_colliding():
 		var target_basis = Basis()
@@ -90,7 +93,7 @@ func _physics_process(delta: float) -> void:
 		target_basis.x = target_basis.y.cross(global_transform.basis.z).normalized()
 		target_basis.z = target_basis.x.cross(target_basis.y).normalized()
 		
-		global_transform.basis = target_basis
+		global_transform.basis = target_basis.scaled(scale)
 	#rotate(Vector3(0,0,1), rotz - deg_to_rad(90))
 	#rotate(Vector3(1,0,0), rotx + deg_to_rad(0))
 

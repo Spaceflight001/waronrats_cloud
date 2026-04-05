@@ -65,8 +65,8 @@ func _process(delta: float) -> void:
 					collider.health -= damage
 					
 					#apply impulse
-					#var impoff: Vector3 = collider.position - $Raycast.get_collision_point()
-					#collider.apply_impulse((nextpos - position) * 10, impoff)
+					var impoff: Vector3 = collider.position - $Raycast.get_collision_point()
+					collider.apply_impulse((nextpos - position) * 3, impoff)
 				else:
 					position = nextpos
 			else:
@@ -95,5 +95,5 @@ func _process(delta: float) -> void:
 	
 	lifetime += delta
 	
-	if lifetime > 2.5:
+	if lifetime > 3:
 		destroy = true

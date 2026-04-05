@@ -18,6 +18,7 @@ viewport_path = NodePath("Gun/SubViewport")
 script = ExtResource("1_ax8wj")
 damage = 52.0
 firerate = 520.0
+fullauto = true
 accuracy = 50.0
 pellets = 1
 velocity = 200.0
