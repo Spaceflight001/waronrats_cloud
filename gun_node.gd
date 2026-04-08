@@ -13,6 +13,7 @@ extends Node3D
 @export var pellets: int
 @export var velocity: float
 @export var aimspeed: float
+@export var zoom: float
 
 @export var ammo: int
 @export var capacity: int
@@ -57,6 +58,7 @@ var noise:FastNoiseLite = FastNoiseLite.new()
 
 @onready var unaimpos = $Gun.position
 @onready var aimpos = -Vector3($Gun/AimPositon.position.x,$Gun/AimPositon.position.z,$Gun/AimPositon.position.y)
+@onready var aimdist = unaimpos.distance_to(aimpos)
 
 func _input(event: InputEvent) -> void:
 	
@@ -142,13 +144,14 @@ func _process(delta: float) -> void:
 	crecoilpos += crecoilvel * delta
 	sprintoff += sprintvel / 5
 	
-	
 	if gunoff.y > 0:
 		gunoff.x = (-gunoff.y ** 2) * 2
 	else:
 		gunoff.x = (-gunoff.y ** 2) * 2
 	
+	main.get_node("Character/Camera3D").fov = 75 - unaimpos.distance_to($Gun.position) * zoom
 	if get_parent().name != "Backpack":
+		
 		#handle shooting
 		if firing == true and lastfire > (60.0 / firerate):
 			if ammo > 0 and reset == false:

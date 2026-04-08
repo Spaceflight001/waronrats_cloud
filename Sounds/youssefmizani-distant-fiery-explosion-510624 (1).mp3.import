@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://n84a1s8lyc4h"
+path="res://.godot/imported/youssefmizani-distant-fiery-explosion-510624 (1).mp3-d7fdd89eb938750765f9d1e82a8516c3.mp3str"
+
+[deps]
+
+source_file="res://Sounds/youssefmizani-distant-fiery-explosion-510624 (1).mp3"
+dest_files=["res://.godot/imported/youssefmizani-distant-fiery-explosion-510624 (1).mp3-d7fdd89eb938750765f9d1e82a8516c3.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

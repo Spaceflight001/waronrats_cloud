@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 @export var currenttool: Node
+@onready var main = get_tree().root.get_child(0)
 
 var scorelife: float = 0.0
 var scoreadd: float = 0.0
@@ -45,6 +46,8 @@ func _on_main_feed(message: String, color: Color = Color(1,1,1), _score: float =
 		$FeedScoreLabel.modulate.a = 1
 		scorelife = 0
 		scoreadd += _score
+	if color == Color(1,0.5,0.5):
+		main.get_node("Hitmarker").play()
 	var clone = $FeedLabel.duplicate()
 	add_child(clone, true)
 	clone.text = message

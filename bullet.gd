@@ -4,11 +4,15 @@ extends MeshInstance3D
 @onready var effpool = main.effpool
 
 @export var damage: float
+@export var damage_end: float
+@export var damage_dist: float
 @export var velocity: Vector3
 @export var origin: Vector3
 @export var hiteffect: PackedScene
 var accel = Vector3(0,-2.8,0)
-var lifetime = 0.0
+
+var lifetime: float = 0.0
+var disttravel: float = 0.0
 var destroy = false
 
 var hitcolor:Color = Color(1,0.5,0.5)
@@ -22,7 +26,7 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	
 	if destroy == true and main.objpool.has(self) == false:
 		destroy = false
@@ -42,10 +46,12 @@ func _process(delta: float) -> void:
 	
 	
 	var nextpos = Vector3(nextx,nexty,nextz)
+	var dist = position.distance_to(nextpos)
+	disttravel += dist
 	look_at(nextpos, Vector3.UP)
 	rotation += Vector3(deg_to_rad(90),0,0)
-	scale.y = position.distance_to(nextpos)
-	$Raycast.target_position.y = -scale.y
+	scale.y = dist
+	$Raycast.target_position.y = -dist
 	$Raycast.force_raycast_update()
 	
 	if $Raycast.is_colliding():
@@ -61,7 +67,6 @@ func _process(delta: float) -> void:
 				if hits.has(collider) != true:
 					hits.append(collider)
 					main.feed.emit(str(damage), hitcolor)
-					main.get_node("Hitmarker").play()
 					collider.health -= damage
 					
 					#apply impulse
@@ -94,6 +99,11 @@ func _process(delta: float) -> void:
 		position = nextpos
 	
 	lifetime += delta
+	var reduce = (damage - damage_end)/damage_dist
+	#if damage > damage_end:
+		#damage -= reduce * dist
+	damage = move_toward(damage, damage_end, reduce)
+	damage = float(roundf(damage * 10)/10)
 	
 	if lifetime > 3:
 		destroy = true
