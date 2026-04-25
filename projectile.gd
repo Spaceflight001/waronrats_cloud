@@ -57,9 +57,33 @@ func explode():
 					part["collider"].health -= 200 * reduc
 					main.feed.emit(str(simple), hitcolor)
 		destroy = true
+		
+		var char = main.get_node("Character")
+		var cam = char.get_node("Camera3D")
+		var camdist = position.distance_to(cam.global_position)
+		if camdist <= maxdist * 5:
+			var reduc: float = (maxdist * 5- camdist) / (maxdist * 5)
+			var x = randf()-randf()
+			var y = randf()-randf()
+			var z = randf()-randf()
+			char.camvel += Vector3(x,y,z) * reduc
+			char.camshake += 8 * reduc
+			if camdist <= maxdist:
+				var reduc2: float = (maxdist - camdist) / maxdist
+				char.health -= 200 * reduc2
+		
 		set_physics_process(false)
+		$CollisionShape3D.disabled = true
+		freeze = true
 		hide()
 		lifetime = 0.0
+		
+		var explode = load("res://explosion.tscn").instantiate()
+		main.add_child(explode)
+		explode.position = position
+		explode.scale *= 2
+		explode.get_node("GPUParticles3D").restart()
+		explode.get_node("Smoke").restart()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -79,14 +103,7 @@ func _process(delta: float) -> void:
 
 func _on_body_entered(body: Node) -> void:
 	if body.name.begins_with("Rat") and linear_velocity.length() > 10:
-		body.health -= 10
-		main.feed.emit(str(10), hitcolor)
+		if destroy == false:
+			body.health -= 10
+			main.feed.emit(str(10), hitcolor)
 	explode()
-	#print($ExplodeScan.get_overlapping_bodies())
-	#for part in $ExplodeScan.get_overlapping_bodies():
-		#
-		#if part.name.begins_with("Rats"):
-			#body.health -= 25
-			#main.feed.emit(str(25), hitcolor)
-	#for i in 200:
-		#frag()

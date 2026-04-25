@@ -44,14 +44,14 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_wvryg")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s6h0r"]
-albedo_color = Color(0.7341239, 0.4950893, 0.45591354, 1)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fw346"]
 albedo_color = Color(0, 0, 0, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_jehwj"]
 height = 5.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s6h0r"]
+albedo_color = Color(0.7341239, 0.4950893, 0.45591354, 1)
 
 [node name="rat_legged" unique_id=646540536 instance=ExtResource("1_xtc46")]
 
@@ -62,11 +62,14 @@ mesh = SubResource("ArrayMesh_jehwj")
 [node name="Cube_001" parent="." index="2" unique_id=766319577]
 material_override = ExtResource("2_s6h0r")
 
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Cube_001" index="0" unique_id=299872074]
+transform = Transform3D(0.3, 0, 0, 0, -1.3113417e-08, 0.3, 0, -0.93458265, -4.0851905e-08, 0.025106668, 0.41054034, 0)
+material_override = SubResource("StandardMaterial3D_fw346")
+mesh = SubResource("CapsuleMesh_jehwj")
+
 [node name="Cylinder" parent="." index="3" unique_id=941892962]
 transform = Transform3D(0, 0.3400285, 0, -0.3400285, 0, 0, 0, 0, 0.3400285, -3.3221667, -1.6723106, 0)
 material_override = SubResource("StandardMaterial3D_s6h0r")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." index="4" unique_id=299872074]
-transform = Transform3D(0.3, 0, 0, 0, -1.3113417e-08, 0.3, 0, -0.3, -1.3113417e-08, 2.2, 1.6, 0)
-material_override = SubResource("StandardMaterial3D_fw346")
-mesh = SubResource("CapsuleMesh_jehwj")
+[node name="Head" type="Node3D" parent="." index="4" unique_id=1446289481]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 1.2, 0)

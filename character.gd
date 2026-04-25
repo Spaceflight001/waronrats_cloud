@@ -4,6 +4,11 @@ var camrot: Vector3 = Vector3(0,0,0)
 
 @export var health: float = 100.0
 
+#camera shake variables
+@export var camshake: float = 0.0
+var camshakeoff: Vector3 = Vector3.ZERO
+
+
 @export var camvel: Vector3 = Vector3(0,0,0)
 @export var camoff: Vector3 = Vector3(0,0,0)
 
@@ -33,6 +38,27 @@ var sensitivity: float = 1.0
 var unaimpos = Vector3(0.3,-0.3,-0.9)
 @onready var aimpos = Vector3(0,0,0)
 
+##camera shake/tremor function
+#func cam_shake(max_rot: float, duration: float):
+	#var timeleft := duration
+	#var startrot: Vector3 = $Camera3D.rotation
+	#var max_rot_rad := deg_to_rad(max_rot)
+	#
+	#while timeleft > 0:
+		#var offx = randf_range(-max_rot, max_rot)
+		#var offy = randf_range(-max_rot, max_rot)
+		#var offz = randf_range(-max_rot, max_rot)
+		#
+		#$Camera3D.rotation.x = startrot + offx
+		#$Camera3D.rotation.y = startrot + offy
+		#$Camera3D.rotation.z = startrot + offz
+		#
+		#timeleft -= get_process_delta_time()
+		#await get_tree().process_frame
+	#
+	#$Camera3D.rotation = startrot
+
+#camera recoil function
 func fire():
 	camoff.x = randf_range(-10,10)/500
 	camoff.y = randf_range(-10,10)/500
@@ -139,7 +165,15 @@ func _physics_process(delta: float) -> void:
 	#handle camera
 	camoff += camvel * delta
 	camvel.x -= velocity.y / 200
-	$Camera3D.rotation = camrot + camoff
+	$Camera3D.rotation = camrot + camoff + camshakeoff
+	
+	
+	#shake the camera
+	camshake *= 1-delta*6
+	var shakex = deg_to_rad(randf_range(-camshake, camshake))
+	var shakey = deg_to_rad(randf_range(-camshake, camshake))
+	var shakez = deg_to_rad(randf_range(-camshake, camshake))
+	camshakeoff = Vector3(shakex, shakey, shakez)
 	
 	
 	#add gravity.
@@ -209,3 +243,6 @@ func _physics_process(delta: float) -> void:
 	
 	lastpos = global_position
 	move_and_slide()
+	
+	if health < 100:
+		health += 1*delta

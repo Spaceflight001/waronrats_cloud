@@ -16,6 +16,7 @@ var disttravel: float = 0.0
 var destroy = false
 
 var hitcolor:Color = Color(1,0.5,0.5)
+var armorhitcolor:Color = Color(1,0.8,0.5)
 var killcolor:Color = Color(0.8,0,0)
 
 var hits: Array[Node] = []
@@ -66,8 +67,12 @@ func _physics_process(delta: float) -> void:
 				#if the bullet havent hit the rat
 				if hits.has(collider) != true:
 					hits.append(collider)
-					main.feed.emit(str(damage), hitcolor)
-					collider.health -= damage
+					var mult = -collider.armor + 1
+					if collider.armor == 0.0:
+						main.feed.emit(str(damage), hitcolor)
+					else:
+						main.feed.emit(str(collider.health), armorhitcolor)
+					collider.health -= damage * mult
 					
 					#apply impulse
 					var impoff: Vector3 = collider.position - $Raycast.get_collision_point()

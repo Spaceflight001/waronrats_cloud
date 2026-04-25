@@ -23,12 +23,14 @@ func _process(delta: float) -> void:
 	if $Sideblack.modulate.a > 0:
 		$Sideblack.modulate.a = move_toward($Sideblack.modulate.a, 0, delta*0.2)
 	
+	#display health
 	var character = get_tree().root.get_child(0).find_child("Character")
 	if character:
 		$HealthBar.value = character.health
 		
+		#does player have gun?
 		if currenttool:
-			if currenttool.has_node("Gun"):
+			if currenttool.has_node("GunAnimate"):
 				$Label.text = str(currenttool.ammo)
 			else:
 				$Label.text = "YES TOOL"

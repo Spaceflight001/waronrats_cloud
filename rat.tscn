@@ -1,15 +1,21 @@
 [gd_scene format=3 uid="uid://b3fu6btlyegtt"]
 
 [ext_resource type="Script" uid="uid://do20pl4skygoh" path="res://rat.gd" id="1_pmwci"]
-[ext_resource type="PackedScene" uid="uid://bu3a52j4i4ten" path="res://rat_legged.glb" id="2_xl1m0"]
+[ext_resource type="PackedScene" uid="uid://ecco1p0bfxq2" path="res://best_rat.tscn" id="3_172ra"]
 [ext_resource type="PackedScene" uid="uid://crd11ah0r4wav" path="res://rat_legged.tscn" id="3_p3nl4"]
+[ext_resource type="AudioStream" uid="uid://b45n6ttqnpm65" path="res://Sounds/parry_1.mp3" id="4_172ra"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_pmwci"]
 friction = 0.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pmwci"]
+size = Vector3(1, 1.1, 1.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_p3nl4"]
+size = Vector3(1, 1, 1.7)
 
 [node name="Rat" type="RigidBody3D" unique_id=2086646947]
+input_ray_pickable = false
 physics_material_override = SubResource("PhysicsMaterial_pmwci")
 gravity_scale = 0.0
 can_sleep = false
@@ -18,9 +24,6 @@ contact_monitor = true
 max_contacts_reported = 8
 linear_damp = 1.0
 script = ExtResource("1_pmwci")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1055589215]
-shape = SubResource("BoxShape3D_pmwci")
 
 [node name="CollisionRay" type="RayCast3D" parent="." unique_id=852237630]
 target_position = Vector3(0, -0.6, 0)
@@ -34,9 +37,34 @@ hit_from_inside = true
 [node name="NavigationAgent" type="NavigationAgent3D" parent="." unique_id=1100230062]
 navigation_layers = 3
 
-[node name="rat_legged" parent="." unique_id=646540536 instance=ExtResource("2_xl1m0")]
-transform = Transform3D(-1.3113416e-08, 0, 0.29999998, 0, 0.29999998, 0, -0.29999998, 0, -1.3113416e-08, 0, 0.1, -0.1)
-visible = false
-
 [node name="rat_legged2" parent="." unique_id=1749274222 instance=ExtResource("3_p3nl4")]
 transform = Transform3D(-1.3113417e-08, 0, 0.3, 0, 0.3, 0, -0.3, 0, -1.3113417e-08, 0, 0.1, 0)
+visible = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1055589215]
+transform = Transform3D(0.99999994, 0, -3.5527137e-15, 0, 0.99999994, 0, 3.5527137e-15, 0, 0.99999994, 0, 0.050000012, 0.19999997)
+shape = SubResource("BoxShape3D_pmwci")
+
+[node name="Sizer" type="Node3D" parent="." unique_id=1126142684]
+
+[node name="rat_legged" parent="." unique_id=1905162544 instance=ExtResource("3_172ra")]
+transform = Transform3D(-0.29999998, 0, 2.6226832e-08, 0, 0.29999998, 0, -2.6226832e-08, 0, -0.29999998, -0.21000001, 0.16, 0.3)
+
+[node name="ParryArea" type="Area3D" parent="." unique_id=864704403]
+visible = false
+collision_layer = 0
+collision_mask = 3
+collision_priority = 10.0
+input_ray_pickable = false
+priority = 5
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ParryArea" unique_id=1749317741]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0.70000005, -2.3000002)
+shape = SubResource("BoxShape3D_p3nl4")
+
+[node name="ParrySound" type="AudioStreamPlayer3D" parent="." unique_id=936101028]
+stream = ExtResource("4_172ra")
+max_distance = 30.0
+max_polyphony = 50
+
+[connection signal="body_entered" from="ParryArea" to="." method="_on_parry_area_body_entered"]

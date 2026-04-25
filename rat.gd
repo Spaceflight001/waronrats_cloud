@@ -4,7 +4,11 @@ extends RigidBody3D
 enum States { IDLE, WAIT, MOVE }
 var state:States = States.IDLE
 
+var lastability: float = 10.0
+
+@export var rattype: String = "Normal"
 @export var health: float = 0.0
+@export var armor: float = 0.0
 
 var lastjump: float = 5.0
 var lastdamage: float = 0.0
@@ -20,19 +24,49 @@ var floornormal: Vector3 = Vector3.ZERO
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	get_node("rat_legged/AnimationPlayer").play("Run")
 
 #calls when idle
 func _on_idle():
 	pass
+
+#throwing direction calculation function
+func get_3d_launch_angles(start_pos: Vector3, target_pos: Vector3, velocity: float) -> Array:
+	var g = -ProjectSettings.get_setting("physics/3d/default_gravity")
+	
+	# Horizontal distance (X/Z distance)
+	var diff = target_pos - start_pos
+	var x = Vector2(diff.x, diff.z).length()
+	
+	# Vertical distance (Height difference)
+	var y = diff.y
+	
+	var v2 = velocity * velocity
+	var v4 = v2 * v2
+	
+	# Calculate the value under the square root (discriminant)
+	var root_val = v4 - g * (g * (x * x) + 2 * y * v2)
+	
+	if root_val < 0:
+		push_warning("Target is out of reach at this velocity.")
+		return []
+	
+	var root = sqrt(root_val)
+	
+	# Two possible solutions (high arc and low arc)
+	var angle_low = atan((v2 - root) / (g * x))
+	var angle_high = atan((v2 + root) / (g * x))
+	
+	return [angle_low, angle_high]
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta: float) -> void:
 	lastjump += delta
 	lastdamage += delta
+	lastability += delta
 	
-	var playerpos = get_tree().root.get_child(0).find_child("Character").position
+	var playerpos = get_tree().root.get_child(0).find_child("Character").position + get_tree().root.get_child(0).find_child("Character").velocity
 	
 	if collray.is_colliding():
 		linear_velocity.y += -9.8 * delta
@@ -47,15 +81,15 @@ func _physics_process(delta: float) -> void:
 			linear_velocity.y += 10
 	
 	var look: Vector3
+	get_node("rat_legged/AnimationPlayer").speed_scale = 5 / $Sizer.scale.x
 	
 	#state machine
 	match state:
 		States.IDLE:
 			_on_idle()
 	
+	#move the rat forward
 	linear_velocity += -global_basis.z * 10 * delta
-	#linear_velocity = velocity
-	#move_and_collide(velocity)
 	
 	#kill if fall
 	if global_position.y < -100:
@@ -83,7 +117,8 @@ func _physics_process(delta: float) -> void:
 			collider.health = move_toward(collider.health, 0, 5)
 			var mult: float = collider.health / 100
 			main.get_node("Buttons/Sideblack").modulate.a = 1
-			main.get_node("Character").camvel += Vector3(mult * (randf() - randf()),mult * (randf() - randf()),0)
+			if collider.health > 0:
+				main.get_node("Character").camvel += Vector3(mult * (randf() - randf()),mult * (randf() - randf()),0)
 			#main.get_node("Character/GunNode").recoilvel += randf() - randf()
 			#main.get_node("Character/GunNode").recoilvelh += randf() - randf()
 	
@@ -94,24 +129,29 @@ func _physics_process(delta: float) -> void:
 		target_basis.z = target_basis.x.cross(target_basis.y).normalized()
 		
 		global_transform.basis = target_basis.scaled(scale)
-	#rotate(Vector3(0,0,1), rotz - deg_to_rad(90))
-	#rotate(Vector3(1,0,0), rotx + deg_to_rad(0))
-
-#func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	#var currvelocity: Vector3 = linear_velocity
-	#
-	#var count = state.get_contact_count()
-	#if count > 0:
-		#var normal = state.get_contact_local_normal(0)
-		#for i in count:
-			#normal = state.get_contact_local_normal(1)
-			#
-			#if normal.angle_to(Vector3.UP) <= 46*(PI/100):
-				#isonfloor = true
-				#floornormal = normal
-		##print(str(normal.angle_to(Vector3.UP)) + " vs " + str(46*(PI/100)))
-	#
-	#var resistance = floornormal if isonfloor else Vector3.UP
-	#currvelocity += resistance * get_gravity() * 2
-	#linear_velocity += currvelocity
 	
+	#IF RAT IS A TENNIS RAT, PARRY PROJECTILES
+	if rattype == "Tennis":
+		var parts = main.get_children(true)
+		for part in parts:
+			if part.name.begins_with("projectile") and part.freeze == false:
+				var dist = part.position.distance_to(position)
+				if dist < 8 and lastability > 5:
+					lastability = 0
+					$ParrySound.play(0.1)
+					part.linear_velocity = (playerpos - position).normalized() * 15
+	
+	#IF RAT IS A THROWER RAT, THROW THINGS
+	if rattype == "Thrower":
+		if lastability > 1:
+			lastability = 0
+			var dir = position.direction_to(playerpos)
+			dir.y = 0.0
+			var angle = get_3d_launch_angles(position + dir.normalized() * 3, playerpos + Vector3(0,2,0), 20)
+			if angle != []:
+				var projectile = load("res://projectile.tscn").instantiate()
+				main.add_child(projectile, true)
+				projectile.position = position + dir.normalized() * 3
+				var axis = Vector3.UP.cross(dir).normalized()
+				var launch_velocity = dir.rotated(axis, angle[0]) * 20
+				projectile.linear_velocity = launch_velocity

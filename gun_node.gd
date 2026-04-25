@@ -10,6 +10,7 @@ extends Node3D
 @export var firerate: float
 @export var fullauto: bool
 @export var accuracy: float
+var trueacc: float = 45.0
 @export var pellets: int
 @export var velocity: float
 @export var aimspeed: float
@@ -56,8 +57,8 @@ var crecoilvel:float = 0.0
 
 var noise:FastNoiseLite = FastNoiseLite.new()
 
-@onready var unaimpos = $Gun.position
-@onready var aimpos = -Vector3($Gun/AimPositon.position.x,$Gun/AimPositon.position.z,$Gun/AimPositon.position.y)
+@onready var unaimpos = $GunAnimate/Gun.position
+@onready var aimpos = -Vector3($GunAnimate/Gun/AimPositon.position.x,$GunAnimate/Gun/AimPositon.position.z,$GunAnimate/Gun/AimPositon.position.y)
 @onready var aimdist = unaimpos.distance_to(aimpos)
 
 func _input(event: InputEvent) -> void:
@@ -72,11 +73,26 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_released("fire"):
 		firing = false
 		reset = false
+	
+	#melee logic
+	if event.is_action_pressed("melee"):
+		if get_parent().name != "Backpack":
+			if lastfire > 0.1:
+				lastfire = 0
+				$AnimationPlayer.play("Melee")
+				var parts = main.get_children(true)
+				for part in parts:
+					print(part.name + " " + str(part.name.begins_with("projectile")))
+					if part.name.begins_with("projectile"):
+						var dist = part.position.distance_to(position)
+						$ParrySound.play(0.1)
+						part.linear_velocity += (-get_parent().get_node("Camera3D").global_basis.z).normalized() * 25
+				
 
 func fire():
 	lastfire = 0.0
-	$Gun/ShootSound.pitch_scale = 0.96 + randf()*0.08
-	$Gun/ShootSound.play(0.1)
+	$ShootSound.pitch_scale = 0.96 + randf()*0.08
+	$ShootSound.play(0.1)
 	ammo -= 1
 	
 	#pellets
@@ -90,7 +106,7 @@ func fire():
 			objpool.remove_at(0)
 		
 		# 1. Calculate the spread (adjust 5.0 to change max spread angle)
-		var spread_amount = deg_to_rad(45.0 / accuracy)
+		var spread_amount = deg_to_rad(trueacc)
 		var random_roll = randf() * TAU
 		var random_pitch = randf() * spread_amount
 		
@@ -98,12 +114,12 @@ func fire():
 		var spread_rot = Basis().rotated(Vector3.UP, random_roll) * Basis().rotated(Vector3.RIGHT, random_pitch)
 		
 		# 3. Apply it to the gun's current global_basis
-		var spreaded = $Gun.global_basis * spread_rot
+		var spreaded = $GunAnimate/Gun.global_basis * spread_rot
 		
 		# 4. Assign to bullet
 		bullet.global_basis = spreaded
-		bullet.global_position = $Gun/Origin.global_position
-		bullet.origin = $Gun/Origin.global_position
+		bullet.global_position = $GunAnimate/Gun/Origin.global_position
+		bullet.origin = $GunAnimate/Gun/Origin.global_position
 		bullet.velocity = spreaded.y * velocity + get_parent().velocity
 		bullet.damage = damage
 		bullet.show()
@@ -115,25 +131,31 @@ func fire():
 		reset = true
 	
 	var recoilinc = -recoilpos * 0.4
-	$Gun/FlashLight.light_energy = 2
+	$GunAnimate/Gun/FlashLight.light_energy = 2
 	print(noise.get_noise_1d(fired))
 	if Input.is_action_pressed("aim"):
 		recoilvel += 0.4 + recoilinc
 		recoilvelh += randf_range(-400,400)/4000 + recoilinc
-		$Gun.position.z += 0.02
+		$GunAnimate/Gun.position.z += 0.02
 		get_parent().camvel += Vector3(deg_to_rad(recoil_power),0,deg_to_rad(recoil_power) * noise.get_noise_1d(fired)) * aim_recoil
 	else:
 		recoilvel += 0.8 + recoilinc
 		recoilvelh += randf_range(-400,400)/2000 + recoilinc
-		$Gun.position.z += 0.04
+		$GunAnimate/Gun.position.z += 0.04
 		get_parent().camvel += Vector3(deg_to_rad(recoil_power),0,deg_to_rad(recoil_power) * noise.get_noise_1d(fired))
-	
+	$GunAnimate/Gun/Smoke.emitting = true
+	if $GunAnimate/Gun/Smoke.color.a < 0.6:
+		$GunAnimate/Gun/Smoke.color.a += 0.05
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	lastfire = 0.0
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	noise.frequency = 0.9
+	
+	var ledge = pow((pow(accuracy, 2.0) + 1),0.5)
+	var cosangle = accuracy/ledge
+	trueacc = rad_to_deg(acos(cosangle))
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -148,8 +170,20 @@ func _process(delta: float) -> void:
 		gunoff.x = (-gunoff.y ** 2) * 2
 	else:
 		gunoff.x = (-gunoff.y ** 2) * 2
+		
+	#smoke logic
+	if $GunAnimate/Gun/Smoke.color.a > 0:
+		$GunAnimate/Gun/Smoke.color.a -= 0.5*delta*$GunAnimate/Gun/Smoke.color.a
+	if $GunAnimate/Gun/Smoke.color.a <= 0:
+		$GunAnimate/Gun/Smoke.emitting = false
+	$GunAnimate/Gun/Smoke.color.a = clampf($GunAnimate/Gun/Smoke.color.a,0,1)
 	
-	main.get_node("Character/Camera3D").fov = 75 - unaimpos.distance_to($Gun.position) * zoom
+	#release aim logic
+	if Input.is_action_pressed("aim") == false or get_parent().name == "Backpack":
+		var dist = $GunAnimate/Gun.position.distance_to(unaimpos)
+		$GunAnimate/Gun.position = $GunAnimate/Gun.position.move_toward(unaimpos, aimspeed * delta * dist)
+	
+	main.get_node("Character/Camera3D").fov = 75 - unaimpos.distance_to($GunAnimate/Gun.position) * zoom
 	if get_parent().name != "Backpack":
 		
 		#handle shooting
@@ -157,13 +191,13 @@ func _process(delta: float) -> void:
 			if ammo > 0 and reset == false:
 				fire()
 		
-		$Gun/SubViewport/Camera3D.global_position = $Gun/AimPositon.global_position
-		$Gun/SubViewport/Camera3D.global_rotation = $Gun/Sprite3D.global_rotation
+		$GunAnimate/Gun/SubViewport/Camera3D.global_position = $GunAnimate/Gun/AimPositon.global_position
+		$GunAnimate/Gun/SubViewport/Camera3D.global_rotation = $GunAnimate/Gun/Sprite3D.global_rotation
 		
 		#handle muzzle flash
-		$Gun/FlashLight.light_energy = move_toward($Gun/FlashLight.light_energy, 0, delta * 20)
+		$GunAnimate/Gun/FlashLight.light_energy = move_toward($GunAnimate/Gun/FlashLight.light_energy, 0, delta * 20)
 		
-		$Gun.rotation.y = 0.3 * sprintoff
+		$GunAnimate/Gun.rotation.y = 0.3 * sprintoff
 		if camrotation != Vector3.ZERO:
 			camdiff = (get_parent().get_node("Camera3D").rotation - camrotation)
 		camrotation = get_parent().get_node("Camera3D").rotation
@@ -199,11 +233,8 @@ func _process(delta: float) -> void:
 		var cam = get_parent().find_child("Camera3D")
 		var diff = aimpos.distance_to(unaimpos)
 		if Input.is_action_pressed("aim"):
-			var dist = $Gun.position.distance_to(aimpos)
-			$Gun.position = $Gun.position.move_toward(aimpos, aimspeed * delta * dist)
-		else:
-			var dist = $Gun.position.distance_to(unaimpos)
-			$Gun.position = $Gun.position.move_toward(unaimpos, aimspeed * delta * dist)
+			var dist = $GunAnimate/Gun.position.distance_to(aimpos)
+			$GunAnimate/Gun.position = $GunAnimate/Gun.position.move_toward(aimpos, aimspeed * delta * dist)
 		
 		charvely += get_parent().velocity.y * delta * 0.1
 		charvely *= 1-delta*3

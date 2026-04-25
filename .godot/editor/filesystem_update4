@@ -1,0 +1,5 @@
+res://throw_node.gd
+res://character.tscn
+res://Textures/rat_skin.tres
+res://projectile.gd
+res://gun_node.tscn

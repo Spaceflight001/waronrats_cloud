@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://w0oq5acvi4wv"]
+
+[ext_resource type="PackedScene" uid="uid://6y16tn8fo402" path="res://Models/rat.glb" id="1_nrcuc"]
+
+[node name="rat" unique_id=371772605 instance=ExtResource("1_nrcuc")]
+
+[node name="Skeleton3D" parent="Armature" parent_id_path=PackedInt32Array(1403882912) index="0" unique_id=495263154]
+bones/7/rotation = Quaternion(-5.2845644e-07, -6.0809334e-08, 0.9955047, -0.094712324)
+bones/9/rotation = Quaternion(-5.2845644e-07, -6.0809334e-08, 0.9955047, -0.094712324)
+
+[node name="Cube_002" parent="." index="4" unique_id=254746712]
+visible = false
+
+[node name="Cube_003" parent="." index="6" unique_id=220803663]
+visible = false
+
+[node name="Cylinder_001" parent="." index="7" unique_id=1388039414]
+visible = false

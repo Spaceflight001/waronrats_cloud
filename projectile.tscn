@@ -18,10 +18,11 @@ radius = 6.0
 [node name="projectile" type="RigidBody3D" unique_id=892301586]
 collision_priority = 2.0
 mass = 10.0
+continuous_cd = true
 contact_monitor = true
-max_contacts_reported = 5
+max_contacts_reported = 8
 script = ExtResource("1_a85iw")
-maxdist = 40.0
+maxdist = 12.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1863918280]
 mesh = SubResource("SphereMesh_akgne")
@@ -37,6 +38,7 @@ collision_mask = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ExplodeScan" unique_id=769771535]
 shape = SubResource("SphereShape3D_qxf0c")
+debug_color = Color(1, 0.01041973, 0.059972174, 0.41960785)
 
 [node name="ExplodeSound" type="AudioStreamPlayer3D" parent="." unique_id=698668620]
 stream = ExtResource("2_qxf0c")
