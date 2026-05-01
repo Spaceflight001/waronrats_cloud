@@ -6,6 +6,8 @@ extends CanvasLayer
 var scorelife: float = 0.0
 var scoreadd: float = 0.0
 
+var armorhitcolor:Color = Color(1,0.8,0.5)
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
@@ -31,7 +33,10 @@ func _process(delta: float) -> void:
 		#does player have gun?
 		if currenttool:
 			if currenttool.has_node("GunAnimate"):
-				$Label.text = str(currenttool.ammo)
+				if currenttool.get_node("AnimationPlayer").current_animation != "Reload":
+					$Label.text = str(currenttool.ammo)
+				else:
+					$Label.text = 'RELOADING'
 			else:
 				$Label.text = "YES TOOL"
 		else:
@@ -50,6 +55,8 @@ func _on_main_feed(message: String, color: Color = Color(1,1,1), _score: float =
 		scoreadd += _score
 	if color == Color(1,0.5,0.5):
 		main.get_node("Hitmarker").play()
+	if color == armorhitcolor:
+		main.get_node("Armormarker").play()
 	var clone = $FeedLabel.duplicate()
 	add_child(clone, true)
 	clone.text = message

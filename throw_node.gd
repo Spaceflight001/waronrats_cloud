@@ -19,7 +19,7 @@ func _input(event: InputEvent) -> void:
 			var projectile = load("res://projectile.tscn").instantiate()
 			main.add_child(projectile, true)
 			projectile.position = cam.global_position + -cam.global_basis.z
-			projectile.linear_velocity = -cam.global_basis.z * 30
+			projectile.linear_velocity = -cam.global_basis.z * 10
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

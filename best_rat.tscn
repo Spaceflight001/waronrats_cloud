@@ -3,22 +3,38 @@
 [ext_resource type="PackedScene" uid="uid://b6l4mb1q00t6v" path="res://Blends/rat_legged.glb" id="1_hj184"]
 [ext_resource type="Material" uid="uid://c7fvwyw2v30gu" path="res://Textures/rat_skin.tres" id="2_d3clq"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sj06n"]
+resource_local_to_scene = true
+transparency = 1
+albedo_color = Color(1, 0, 0, 0)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d3clq"]
 albedo_color = Color(0, 0, 0, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_eh6wy"]
 height = 8.0
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e26bq"]
+resource_local_to_scene = true
+transparency = 1
+albedo_color = Color(1, 0, 0, 0)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eh6wy"]
 albedo_color = Color(0.8801886, 0.47758394, 0.42923456, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pvnv1"]
+resource_local_to_scene = true
+transparency = 1
+albedo_color = Color(1, 0, 0, 0)
 
 [node name="rat_legged" unique_id=1905162544 instance=ExtResource("1_hj184")]
 
 [node name="Armature" parent="." index="1" unique_id=956252915]
-transform = Transform3D(-4.3711392e-08, 0, 0.99999994, 0, 1.0000001, 0, -1.0000001, 0, -4.3711385e-08, 0, -0.1, 0)
+transform = Transform3D(1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0, 0.99999994, 0, -0.1, 0)
 
 [node name="Head" parent="Armature/Body" parent_id_path=PackedInt32Array(1905921719) index="0" unique_id=402579205]
 transform = Transform3D(-4.3711385e-08, -2.7755576e-17, -0.32099894, 4.656613e-10, 0.99999994, 0, 0.99999994, -4.656613e-10, -1.4031309e-08, -0.65086144, 0.6666871, 3.2981815)
+material_overlay = SubResource("StandardMaterial3D_sj06n")
 surface_material_override/0 = ExtResource("2_d3clq")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Armature/Body/Head" index="0" unique_id=1836507811]
@@ -28,6 +44,7 @@ mesh = SubResource("CapsuleMesh_eh6wy")
 
 [node name="Tail" parent="Armature/Body" parent_id_path=PackedInt32Array(1905921719) index="1" unique_id=74557555]
 transform = Transform3D(6.4968777e-16, -1.4863124e-08, -0.34002852, -0.34002864, -1.4863124e-08, 0, -1.4863124e-08, 0.34002864, -1.4863119e-08, -0.65086114, -1.3041115, -3.9490433)
+material_overlay = SubResource("StandardMaterial3D_e26bq")
 surface_material_override/0 = SubResource("StandardMaterial3D_eh6wy")
 
 [node name="Skeleton3D" parent="Armature" index="1" unique_id=1711721532]
@@ -46,6 +63,7 @@ bones/8/rotation = Quaternion(-0.47421893, 0.029362489, -0.014406686, 0.8797992)
 
 [node name="Body" parent="Armature/Skeleton3D" index="0" unique_id=890044112]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6508613, 7.450581e-09, 0.6508613)
+material_overlay = SubResource("StandardMaterial3D_pvnv1")
 surface_material_override/0 = ExtResource("2_d3clq")
 
 [node name="Plane" parent="." index="2" unique_id=1002091974]

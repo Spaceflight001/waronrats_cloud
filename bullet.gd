@@ -9,7 +9,7 @@ extends MeshInstance3D
 @export var velocity: Vector3
 @export var origin: Vector3
 @export var hiteffect: PackedScene
-var accel = Vector3(0,-2.8,0)
+var accel = Vector3(0,-9.8,0)
 
 var lifetime: float = 0.0
 var disttravel: float = 0.0
@@ -31,6 +31,7 @@ func _physics_process(delta: float) -> void:
 	
 	if destroy == true and main.objpool.has(self) == false:
 		destroy = false
+		$Raycast.clear_exceptions()
 		hide()
 		set_process(false)
 		set_physics_process(false)
@@ -52,48 +53,55 @@ func _physics_process(delta: float) -> void:
 	look_at(nextpos, Vector3.UP)
 	rotation += Vector3(deg_to_rad(90),0,0)
 	scale.y = dist
-	$Raycast.target_position.y = -dist
+	$Raycast.force_raycast_update()
+	$Raycast.target_position.y = -dist * 1.1
 	$Raycast.force_raycast_update()
 	
 	if $Raycast.is_colliding():
 		var collider = $Raycast.get_collider()
-		#print(collider)
 		if collider.name != "Character":
 			position = $Raycast.get_collision_point()
+			
+			var hit
+			if effpool.is_empty():
+				hit = hiteffect.instantiate()
+				main.add_child(hit)
+			else:
+				hit = effpool[0]
+				effpool.remove_at(0)
+			hit.set_process(true)
 			
 			#if it hit a rat
 			if collider.name.begins_with("Rat"):
 				
 				#if the bullet havent hit the rat
-				if hits.has(collider) != true:
-					hits.append(collider)
-					var mult = -collider.armor + 1
-					if collider.armor == 0.0:
-						main.feed.emit(str(damage), hitcolor)
-					else:
-						main.feed.emit(str(collider.health), armorhitcolor)
-					collider.health -= damage * mult
-					
-					#apply impulse
-					var impoff: Vector3 = collider.position - $Raycast.get_collision_point()
-					collider.apply_impulse((nextpos - position) * 3, impoff)
+				#if hits.has(collider) != true:
+					#
+				#else:
+					#position = nextpos
+				
+				$Raycast.add_exception(collider)
+				var mult = (-collider.armor) + 1
+				if collider.armor == 0.0:
+					main.feed.emit(str(damage), hitcolor)
 				else:
-					position = nextpos
+					#create a spark effect
+					var look = $Raycast.get_collision_point() + $Raycast.get_collision_normal()
+					hit.position = $Raycast.get_collision_point()
+					hit.look_at(look)
+					hit.get_node("Sparks").restart()
+					main.feed.emit(str(damage * mult), armorhitcolor)
+				collider.health -= (damage * mult)
+				
+				#apply impulse
+				#var impoff: Vector3 = collider.position - $Raycast.get_collision_point()
+				#collider.apply_impulse(-(nextpos - position) * 3, impoff)
 			else:
 				destroy = true 
 			if collider.is_class("MeshInstance3D") or collider.is_class("CSGMesh3D"):
-				var hit
-				if effpool.is_empty():
-					hit = hiteffect.instantiate()
-					main.add_child(hit)
-				else:
-					hit = effpool[0]
-					effpool.remove_at(0)
-				hit.set_process(true)
 				
-				#var hit = hiteffect.instantiate()
+				#create a hit effect
 				var look = $Raycast.get_collision_point() + $Raycast.get_collision_normal()
-				#main.add_child(hit)
 				hit.position = $Raycast.get_collision_point()
 				hit.look_at(look)
 				hit.material = $Raycast.get_collider().mesh.get_material()

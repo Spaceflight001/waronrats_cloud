@@ -1,0 +1,16 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://d23br861wktdv"]
+
+[sub_resource type="Gradient" id="Gradient_vddna"]
+colors = PackedColorArray(0.2112574, 0.429327, 0.2723488, 1, 1, 1, 1, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_robth"]
+noise_type = 0
+frequency = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_apeov"]
+noise = SubResource("FastNoiseLite_robth")
+color_ramp = SubResource("Gradient_vddna")
+
+[resource]
+albedo_color = Color(0.13799098, 0.38569757, 0, 1)
+albedo_texture = SubResource("NoiseTexture2D_apeov")

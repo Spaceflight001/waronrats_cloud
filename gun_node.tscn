@@ -46,6 +46,8 @@ point_count = 2
 offsets = PackedFloat32Array(0, 0.3482143, 1)
 colors = PackedColorArray(0.6872149, 0.68721503, 0.6872149, 0.54901963, 0.3647059, 0.3647059, 0.3647059, 0.5019608, 0.41981313, 0.41981313, 0.4198131, 0)
 
+[sub_resource type="BoxMesh" id="BoxMesh_l8111"]
+
 [sub_resource type="Animation" id="Animation_l8111"]
 resource_name = "Melee"
 step = 0.1
@@ -100,27 +102,57 @@ tracks/1/keys = {
 "update": 0,
 "values": [Vector3(0, 0, 0)]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("GunAnimate/Gun/Magazine:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.17799994, 0, -0.08)]
+}
+
+[sub_resource type="Animation" id="Animation_jen24"]
+resource_name = "Reload"
+length = 3.0
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("GunAnimate/Gun/Magazine:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 1.5, 2.7, 3),
+"transitions": PackedFloat32Array(0.5, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(-0.17799994, 0, -0.08), Vector3(-0.5, 0, -0.08), Vector3(-0.6, 0, -2), Vector3(-0.5, 0, -0.08), Vector3(-0.17799994, 0, -0.08)]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_jen24"]
 _data = {
 &"Melee": SubResource("Animation_l8111"),
-&"RESET": SubResource("Animation_ytnxk")
+&"RESET": SubResource("Animation_ytnxk"),
+&"Reload": SubResource("Animation_jen24")
 }
 
 [node name="GunNode" type="Node3D" unique_id=1868586264]
 script = ExtResource("1_ax8wj")
-damage = 52.0
-firerate = 1000.0
+damage = 40.0
+firerate = 550.0
 fullauto = true
-accuracy = 70.0
+accuracy = 60.0
 pellets = 1
-velocity = 200.0
+velocity = 180.0
 aimspeed = 4.0
 zoom = 40.0
 ammo = 20
-capacity = 47
-recoil_power = 20.0
-aim_recoil = 0.6
+capacity = 60
+recoil_power = 30.0
+aim_recoil = 0.7
 recoil_frequency = 0.5
 bullet_mesh = ExtResource("2_127jl")
 
@@ -206,6 +238,10 @@ scale_amount_max = 0.6
 scale_amount_curve = SubResource("Curve_ytnxk")
 color = Color(0.8117647, 0.8117647, 0.8117647, 0.30588236)
 color_ramp = SubResource("Gradient_jen24")
+
+[node name="Magazine" type="MeshInstance3D" parent="GunAnimate/Gun" unique_id=828675727]
+transform = Transform3D(0.2599999, 0, 0, 0, 0.19999999, 0, 0, 0, 0.19999999, -0.17799994, 0, -0.08)
+mesh = SubResource("BoxMesh_l8111")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1477568653]
 libraries/ = SubResource("AnimationLibrary_jen24")

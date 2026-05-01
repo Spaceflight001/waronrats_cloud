@@ -99,13 +99,12 @@ func _physics_process(delta: float) -> void:
 	if health <= 0.0:
 		main.feed.emit("KILLED RAT", killcolor, 100)
 		main.get_node("Killmarker").play()
+		main.rats -= 1
 		queue_free()
 	
-	#face player
-	#look_at(playerpos, Vector3.UP)
-	
+	#look at player
 	var lookat = global_transform.looking_at(playerpos, Vector3.UP)
-	global_transform = global_transform.interpolate_with(lookat, 5 * delta)
+	global_transform = global_transform.interpolate_with(lookat, 6 * delta)
 	rotation.x = 0
 	rotation.z = 0
 	
@@ -143,7 +142,7 @@ func _physics_process(delta: float) -> void:
 	
 	#IF RAT IS A THROWER RAT, THROW THINGS
 	if rattype == "Thrower":
-		if lastability > 1:
+		if lastability > 5:
 			lastability = 0
 			var dir = position.direction_to(playerpos)
 			dir.y = 0.0

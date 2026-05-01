@@ -6,7 +6,10 @@
 [ext_resource type="PackedScene" uid="uid://crlv8kbqb66qo" path="res://bullet.tscn" id="4_1bvp3"]
 [ext_resource type="PackedScene" uid="uid://c2b2g5mahceth" path="res://bullet_hit.tscn" id="6_7mycd"]
 [ext_resource type="AudioStream" uid="uid://dpx83l3w3rlf7" path="res://Sounds/hitmarker.wav" id="6_272bh"]
+[ext_resource type="AudioStream" uid="uid://1dq1gykxsse0" path="res://Sounds/armor_hit.wav" id="7_4c57u"]
 [ext_resource type="AudioStream" uid="uid://cmohlvu0yt5ec" path="res://Sounds/killmarker.wav" id="7_272bh"]
+[ext_resource type="Material" uid="uid://d23br861wktdv" path="res://Textures/grass.tres" id="8_kek77"]
+[ext_resource type="Material" uid="uid://dkxohl5jmaqob" path="res://Textures/metal.tres" id="9_4c57u"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_h2yge"]
 sky_top_color = Color(0.31198454, 0.45367932, 0.56070274, 1)
@@ -23,23 +26,7 @@ sky = SubResource("Sky_1bvp3")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="Gradient" id="Gradient_0xm2m"]
-colors = PackedColorArray(0.36734524, 0.69740117, 0.39289793, 1, 0.33481294, 0.5778211, 0.24571949, 1)
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_h2yge"]
-frequency = 0.1
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_1bvp3"]
-noise = SubResource("FastNoiseLite_h2yge")
-color_ramp = SubResource("Gradient_0xm2m")
-seamless = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0xm2m"]
-albedo_color = Color(0.19016919, 0.36124298, 0.18453994, 1)
-albedo_texture = SubResource("NoiseTexture2D_1bvp3")
-
 [sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
-material = SubResource("StandardMaterial3D_0xm2m")
 size = Vector3(40, 1, 40)
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_272bh"]
@@ -78,10 +65,16 @@ volume_db = 1.0
 pitch_scale = 1.5
 max_polyphony = 100
 
+[node name="Armormarker" type="AudioStreamPlayer" parent="." unique_id=1303072530]
+stream = ExtResource("7_4c57u")
+volume_db = 1.0
+pitch_scale = 1.2
+max_polyphony = 100
+
 [node name="Killmarker" type="AudioStreamPlayer" parent="." unique_id=1158195254]
 stream = ExtResource("7_272bh")
 volume_db = 3.0
-pitch_scale = 2.0
+pitch_scale = 3.0
 max_polyphony = 100
 
 [node name="CSGMesh3D" type="CSGMesh3D" parent="." unique_id=309657022]
@@ -89,12 +82,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
 use_collision = true
 collision_layer = 3
 mesh = SubResource("BoxMesh_7dm0k")
+material = ExtResource("8_kek77")
 
 [node name="CSGMesh3D6" type="CSGMesh3D" parent="." unique_id=1011021482]
-transform = Transform3D(2.6, 0, 0, 0, 1, 0, 0, 0, 0.3, -71.9, -2, 0)
+transform = Transform3D(2.6, 0, 0, 0, 1, 0, 0, 0, 0.3, -72, -2, 0)
 use_collision = true
 collision_layer = 3
 mesh = SubResource("BoxMesh_7dm0k")
+
+[node name="CSGMesh3D7" type="CSGMesh3D" parent="." unique_id=1590791700]
+transform = Transform3D(2.6, 0, 0, 0, 13.519999, 0, 0, 0, 0.09, -72, -2, 7.7999997)
+use_collision = true
+collision_layer = 3
+mesh = SubResource("BoxMesh_7dm0k")
+material = ExtResource("9_4c57u")
 
 [node name="CSGMesh3D2" type="CSGMesh3D" parent="." unique_id=1468104215]
 transform = Transform3D(0.099999964, 0, 0, 0, 1, 0, 0, 0, 1, 18, -1, 0)
@@ -119,6 +120,7 @@ transform = Transform3D(0.25426948, 0.72968537, 0.32216147, -0.13626257, 5.44644
 use_collision = true
 collision_layer = 3
 mesh = SubResource("BoxMesh_7dm0k")
+material = ExtResource("8_kek77")
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1231607126]
 visible = false

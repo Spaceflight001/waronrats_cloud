@@ -65,7 +65,9 @@ func _input(event: InputEvent) -> void:
 	
 	#reload logic
 	if event.is_action_pressed("reload"):
-		ammo = capacity
+		if $AnimationPlayer.current_animation == "":
+			$AnimationPlayer.play("Reload")
+			ammo = capacity
 	
 	if event.is_action_pressed("fire"):
 		firing = true
@@ -77,16 +79,29 @@ func _input(event: InputEvent) -> void:
 	#melee logic
 	if event.is_action_pressed("melee"):
 		if get_parent().name != "Backpack":
-			if lastfire > 0.1:
+			if lastfire > 0.1 and $AnimationPlayer.current_animation == "":
 				lastfire = 0
 				$AnimationPlayer.play("Melee")
 				var parts = main.get_children(true)
 				for part in parts:
-					print(part.name + " " + str(part.name.begins_with("projectile")))
+					
+					#parry projectiles
 					if part.name.begins_with("projectile"):
-						var dist = part.position.distance_to(position)
+						var dist = part.position.distance_to(global_position)
 						$ParrySound.play(0.1)
 						part.linear_velocity += (-get_parent().get_node("Camera3D").global_basis.z).normalized() * 25
+					
+					#damage rats
+					if part.name.begins_with("Rat"):
+						var dist = part.position.distance_to(global_position)
+						if dist < 15:
+							#knockback
+							var dir = (part.position - get_parent().get_node("Camera3D").global_position).normalized() * 20
+							part.linear_velocity += dir
+							
+							$ParrySound.play(0.1)
+							part.health -= 40
+							main.feed.emit(str(40), Color(1,0.5,0.5))
 				
 
 func fire():
@@ -132,7 +147,6 @@ func fire():
 	
 	var recoilinc = -recoilpos * 0.4
 	$GunAnimate/Gun/FlashLight.light_energy = 2
-	print(noise.get_noise_1d(fired))
 	if Input.is_action_pressed("aim"):
 		recoilvel += 0.4 + recoilinc
 		recoilvelh += randf_range(-400,400)/4000 + recoilinc
@@ -179,7 +193,7 @@ func _process(delta: float) -> void:
 	$GunAnimate/Gun/Smoke.color.a = clampf($GunAnimate/Gun/Smoke.color.a,0,1)
 	
 	#release aim logic
-	if Input.is_action_pressed("aim") == false or get_parent().name == "Backpack":
+	if Input.is_action_pressed("aim") == false or get_parent().name == "Backpack" or $AnimationPlayer.current_animation != "":
 		var dist = $GunAnimate/Gun.position.distance_to(unaimpos)
 		$GunAnimate/Gun.position = $GunAnimate/Gun.position.move_toward(unaimpos, aimspeed * delta * dist)
 	
@@ -188,7 +202,7 @@ func _process(delta: float) -> void:
 		
 		#handle shooting
 		if firing == true and lastfire > (60.0 / firerate):
-			if ammo > 0 and reset == false:
+			if ammo > 0 and reset == false and $AnimationPlayer.current_animation == "":
 				fire()
 		
 		$GunAnimate/Gun/SubViewport/Camera3D.global_position = $GunAnimate/Gun/AimPositon.global_position
@@ -223,7 +237,6 @@ func _process(delta: float) -> void:
 					sway = move_toward(sway, 0.1, delta / 4)
 					walksway = move_toward(walksway, 0.2, delta / 2)
 		else:
-			#sprintoff = move_toward(sprintoff, 0, delta)
 			walksway = move_toward(walksway, 0, delta / 4)
 			if Input.is_action_pressed("aim"):
 				sway = move_toward(sway, 0.0, delta / 1.25)
@@ -232,7 +245,7 @@ func _process(delta: float) -> void:
 		
 		var cam = get_parent().find_child("Camera3D")
 		var diff = aimpos.distance_to(unaimpos)
-		if Input.is_action_pressed("aim"):
+		if Input.is_action_pressed("aim") and $AnimationPlayer.current_animation == "":
 			var dist = $GunAnimate/Gun.position.distance_to(aimpos)
 			$GunAnimate/Gun.position = $GunAnimate/Gun.position.move_toward(aimpos, aimspeed * delta * dist)
 		

@@ -2,6 +2,35 @@
 
 [ext_resource type="Script" uid="uid://dtwgwt4hxlnp3" path="res://bullet_hit.gd" id="1_cl8gq"]
 
+[sub_resource type="Gradient" id="Gradient_cl8gq"]
+offsets = PackedFloat32Array(0, 0.34313726, 1)
+colors = PackedColorArray(0.3180198, 0.31801978, 0.31801975, 1, 0.3647059, 0.3647059, 0.3647059, 0.5019608, 0.41981313, 0.41981313, 0.4198131, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ux62q"]
+gradient = SubResource("Gradient_cl8gq")
+
+[sub_resource type="Curve" id="Curve_4di3c"]
+_data = [Vector2(0, 0.1460675), 0.0, 2.0422473, 0, 0, Vector2(0.96875, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_5d3uu"]
+curve = SubResource("Curve_4di3c")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_827i6"]
+direction = Vector3(0, 0, -1)
+spread = 20.0
+initial_velocity_min = 5.0
+initial_velocity_max = 5.0
+angular_velocity_max = 10.0
+gravity = Vector3(0, -5, 0)
+damping_min = 1.5
+damping_max = 2.0
+scale_min = 0.6
+scale_max = 0.6
+scale_curve = SubResource("CurveTexture_5d3uu")
+color = Color(1, 1, 1, 0.7490196)
+color_ramp = SubResource("GradientTexture1D_ux62q")
+
 [sub_resource type="Gradient" id="Gradient_ux62q"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
 
@@ -25,14 +54,6 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_827i6")
 orientation = 2
 
-[sub_resource type="Curve" id="Curve_4di3c"]
-_data = [Vector2(0, 0.1460675), 0.0, 2.0422473, 0, 0, Vector2(0.96875, 1), 0.0, 0.0, 0, 0]
-point_count = 2
-
-[sub_resource type="Gradient" id="Gradient_cl8gq"]
-offsets = PackedFloat32Array(0, 0.34313726, 1)
-colors = PackedColorArray(0.3180198, 0.31801978, 0.31801975, 1, 0.3647059, 0.3647059, 0.3647059, 0.5019608, 0.41981313, 0.41981313, 0.4198131, 0)
-
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_cl8gq"]
 particle_flag_align_y = true
 direction = Vector3(0, 0, -1)
@@ -51,37 +72,47 @@ height = 0.1
 radial_segments = 4
 rings = 2
 
-[sub_resource type="SphereMesh" id="SphereMesh_5d3uu"]
-radius = 0.05
-height = 0.1
-radial_segments = 8
-rings = 4
+[sub_resource type="Gradient" id="Gradient_5d3uu"]
+offsets = PackedFloat32Array(0, 0.7254902)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_cl8gq"]
+gradient = SubResource("Gradient_5d3uu")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ux62q"]
+particle_flag_align_y = true
+direction = Vector3(0, 0, -1)
+spread = 15.0
+initial_velocity_min = 10.0
+initial_velocity_max = 12.0
+damping_min = 5.0
+damping_max = 5.0
+color_ramp = SubResource("GradientTexture1D_cl8gq")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ux62q"]
+transparency = 1
+vertex_color_use_as_albedo = true
+vertex_color_is_srgb = true
+emission_enabled = true
+emission = Color(1, 0.73901284, 0.015211628, 1)
+emission_energy_multiplier = 10.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_5d3uu"]
+material = SubResource("StandardMaterial3D_ux62q")
+size = Vector3(0.05, 0.5, 0.05)
 
 [node name="bullet_hit" type="Node3D" unique_id=1302323724]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("1_cl8gq")
 
-[node name="Smoke" type="CPUParticles3D" parent="." unique_id=1061697412]
+[node name="Smoke" type="GPUParticles3D" parent="." unique_id=681703668]
 emitting = false
 amount = 2
 one_shot = true
 explosiveness = 1.0
 fixed_fps = 60
-visibility_aabb = AABB(-4, -4, -4, 8, 8, 8)
-mesh = SubResource("PlaneMesh_bn608")
-direction = Vector3(0, 0, -1)
-spread = 20.0
-gravity = Vector3(0, -5, 0)
-initial_velocity_min = 5.0
-initial_velocity_max = 5.0
-angular_velocity_max = 10.0
-damping_min = 1.5
-damping_max = 2.0
-scale_amount_min = 0.6
-scale_amount_max = 0.6
-scale_amount_curve = SubResource("Curve_4di3c")
-color = Color(1, 1, 1, 0.7490196)
-color_ramp = SubResource("Gradient_cl8gq")
+process_material = SubResource("ParticleProcessMaterial_827i6")
+draw_pass_1 = SubResource("PlaneMesh_bn608")
 
 [node name="Shards" type="GPUParticles3D" parent="." unique_id=1271932956]
 emitting = false
@@ -95,6 +126,13 @@ visibility_aabb = AABB(-5.8229275, -0.26153076, -3.8520534, 5.8732643, 0.7773418
 process_material = SubResource("ParticleProcessMaterial_cl8gq")
 draw_pass_1 = SubResource("SphereMesh_ux62q")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1822025592]
-visible = false
-mesh = SubResource("SphereMesh_5d3uu")
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1425822767]
+emitting = false
+amount = 3
+one_shot = true
+explosiveness = 1.0
+randomness = 0.2
+fixed_fps = 60
+visibility_aabb = AABB(-5.8229275, -0.26153076, -3.8520534, 5.8732643, 0.7773418, 3.8520534)
+process_material = SubResource("ParticleProcessMaterial_ux62q")
+draw_pass_1 = SubResource("BoxMesh_5d3uu")
